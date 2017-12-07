@@ -7,16 +7,66 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Rock, Paper, Scissors</title>
 
-    <!-- Latest compiled and minified CSS & JS -->
     <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- connect to firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBcw7vxfVodOnXmmesBCNFN625DR_CTvdY",
+            authDomain: "rps-multi-e7e39.firebaseapp.com",
+            databaseURL: "https://rps-multi-e7e39.firebaseio.com",
+            projectId: "rps-multi-e7e39",
+            storageBucket: "rps-multi-e7e39.appspot.com",
+            messagingSenderId: "880645929001"
+        };
+        firebase.initializeApp(config);
+    </script>
 
 
 </head>
 
 <body>
+    <!-- page header -->
+    <div class="jumbotron text-center">
+        <h1>Rock - Paper - Scissors</h1>
+        <button class="btn btn-primary btn-lg">Play!</button>
+    </div>
+    <div class="container">
+        <!-- display choice of rock paper or scissors -->
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="list-inline text-center">
+                    <li>
+                        <button class="btn btn-default selection" value="rock">Rock</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-default selection" value="paper">Paper</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-default selection" value="scissors">Scissors</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- display the user's choice -->
+
+    <!-- display the opponents choice -->
+
+    <!-- show the result in a modal -->
+
+    <!-- display the score -->
 
     <script src="assets/javascript/app.js"></script>
 </body>

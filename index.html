@@ -2,73 +2,124 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Rock, Paper, Scissors</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Rock, Paper, Scissors</title>
 
-    <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
 
-    <!-- connect to firebase -->
-    <script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
-    <script>
-        // Initialize Firebase
-        var config = {
-            apiKey: "AIzaSyBcw7vxfVodOnXmmesBCNFN625DR_CTvdY",
-            authDomain: "rps-multi-e7e39.firebaseapp.com",
-            databaseURL: "https://rps-multi-e7e39.firebaseio.com",
-            projectId: "rps-multi-e7e39",
-            storageBucket: "rps-multi-e7e39.appspot.com",
-            messagingSenderId: "880645929001"
-        };
-        firebase.initializeApp(config);
-    </script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <!-- connect to firebase -->
+  <script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBcw7vxfVodOnXmmesBCNFN625DR_CTvdY",
+      authDomain: "rps-multi-e7e39.firebaseapp.com",
+      databaseURL: "https://rps-multi-e7e39.firebaseio.com",
+      projectId: "rps-multi-e7e39",
+      storageBucket: "rps-multi-e7e39.appspot.com",
+      messagingSenderId: "880645929001"
+    };
+    firebase.initializeApp(config);
+  </script>
 
 
 </head>
 
 <body>
-    <!-- page header -->
-    <div class="jumbotron text-center">
-        <h1>Rock - Paper - Scissors</h1>
-        <button class="btn btn-primary btn-lg">Play!</button>
+  <!-- page header -->
+  <div class="jumbotron text-center">
+    <h1>Rock - Paper - Scissors</h1>
+    <button class="btn btn-primary btn-lg">Play!</button>
+  </div>
+  <div class="container">
+    <!-- display choice of rock paper or scissors -->
+    <div class="row">
+      <div class="col-xs-12">
+        <ul class="list-inline text-center">
+          <li>
+            <button class="btn btn-default selection" value="rock">Rock</button>
+          </li>
+          <li>
+            <button class="btn btn-default selection" value="paper">Paper</button>
+          </li>
+          <li>
+            <button class="btn btn-default selection" value="scissors">Scissors</button>
+          </li>
+        </ul>
+      </div>
     </div>
-    <div class="container">
-        <!-- display choice of rock paper or scissors -->
-        <div class="row">
-            <div class="col-xs-12">
-                <ul class="list-inline text-center">
-                    <li>
-                        <button class="btn btn-default selection" value="rock">Rock</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-default selection" value="paper">Paper</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-default selection" value="scissors">Scissors</button>
-                    </li>
-                </ul>
-            </div>
+
+    <!-- display the user's choice and score -->
+    <div class="panel panel-default player-panel center-block">
+      <div class="panel-heading text-center">
+        <h2>You</h2>
+      </div>
+      <div class="panel-body relative">
+        <div class="circle paper center-block text-center">
+          <span class="h1">PAPER</span>
         </div>
-
-
+        <div class="score">
+          <p>
+            Wins:
+            <span id="playerWins">0</span>
+          </p>
+        </div>
+      </div>
     </div>
 
-
-    <!-- display the user's choice -->
-
-    <!-- display the opponents choice -->
+    <!-- display the opponents choice and score -->
+    <div class="panel panel-default player-panel center-block">
+      <div class="panel-heading text-center">
+        <h2>Opponent</h2>
+      </div>
+      <div class="panel-body relative">
+        <div class="circle scissors center-block text-center">
+          <span class="h1">SCISSORS</span>
+        </div>
+        <div class="score">
+          <p>
+            Wins:
+            <span id="opponentWins">0</span>
+          </p>
+        </div>
+      </div>
+    </div>
 
     <!-- show the result in a modal -->
+    <div class="modal fade" id="resultModal" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <!-- display "You won!" or "You lost." -->
+            <h4 class="modal-title">Modal Header</h4>
+          </div>
+          <div class="modal-body">
+            <p>This is a large modal.</p>
 
-    <!-- display the score -->
+            <!-- todo display a giphy based on the result and choices -->
+            <img src="" alt="">
+          </div>
+          <!-- modal footer (haven't decided to include a dismiss button) -->
+          <!-- <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script src="assets/javascript/app.js"></script>
+
+
+
+  <script src="assets/javascript/app.js"></script>
 </body>
 
 </html>

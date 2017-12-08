@@ -1,3 +1,47 @@
+/* rock paper scissors buttons */
 .selection {
     min-width: 80px;
+}
+
+/* player panel styles */
+.player-panel {
+  max-width: 350px;
+  min-width: 280px;
+}
+
+.circle {
+  border-radius: 50%;
+  height: 250px;
+  width: 250px;
+}
+
+.circle span {
+  line-height: 250px;
+  vertical-align: middle;
+}
+
+.rock {
+  background-color: rgb(34, 25, 25);
+  color: white;
+}
+
+.scissors {
+  background-color: rgb(31, 50, 114);
+  color: white;
+}
+
+.paper {
+  background-color: rgb(169, 177, 58);
+  color: black;
+}
+
+.score {
+  position: absolute;
+  bottom: 0px;
+  left: 10px;
+}
+
+/* helpers */
+.relative {
+  position: relative;
 }

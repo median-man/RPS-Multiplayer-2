@@ -62,8 +62,8 @@
         <h2>You</h2>
       </div>
       <div class="panel-body relative">
-        <div class="circle paper center-block text-center">
-          <span class="h1">PAPER</span>
+        <div class="circle paper center-block text-center" id="playerChoice">
+          <span class="h1 text-uppercase">paper</span>
         </div>
         <div class="score">
           <p>
@@ -76,21 +76,21 @@
 
     <!-- display the opponents choice and score -->
     <div class="panel panel-default player-panel center-block">
-      <div class="panel-heading text-center">
-        <h2>Opponent</h2>
-      </div>
-      <div class="panel-body relative">
-        <div class="circle scissors center-block text-center">
-          <span class="h1">SCISSORS</span>
+        <div class="panel-heading text-center">
+          <h2>Opponent</h2>
         </div>
-        <div class="score">
-          <p>
-            Wins:
-            <span id="opponentWins">0</span>
-          </p>
+        <div class="panel-body relative">
+          <div class="circle paper center-block text-center" id="oppChoice">
+            <span class="h1 text-uppercase">paper</span>
+          </div>
+          <div class="score">
+            <p>
+              Wins:
+              <span id="oppWins">0</span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
 
     <!-- show the result in a modal -->
     <div class="modal fade" id="resultModal" role="dialog">

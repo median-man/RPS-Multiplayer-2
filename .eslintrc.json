@@ -2,5 +2,8 @@
   "env": {
     "jquery": true,
     "browser": true
+  },
+  "globals": {
+    "firebase": false
   }
 }

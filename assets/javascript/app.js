@@ -1,23 +1,10 @@
 // global vars
 const player = { choice: '', wins: 0 };
 const opponent = { choice: '', wins: 0 };
+const database = firebase.database();
 
-// Function to get the winner. Returns a string of 'player', 'opponent', or ''.
-function getWinner() {
-  if (player.choice === opponent.choice) {
-    // return empty string on a tie
-    return '';
-  }
-  if (
-    (player.choice === 'rock' && opponent.choice === 'paper') ||
-    (player.choice === 'paper' && opponent.choice === 'scissors') ||
-    (player.choice === 'scissors' && opponent.choice === 'rock')
-  ) {
-    return 'opponent';
-  }
-  return 'player';
-}
 
+// UI Functions ===============================================
 function setChoice(id, value) {
   $(id)
     // update the class
@@ -65,16 +52,37 @@ function renderGame(winner) {
   }, 140);
 }
 
-// Function to handle user selection (rock, paper, or scissors chosen)
-function handleSelection() {
+// Game Logic ===============================================
+
+// Function randomly returns 'rock', 'paper', or 'scissors'
+function getRandomChoice() {
   const choices = ['rock', 'paper', 'scissors'];
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
+// Function to get the winner. Returns a string of 'player', 'opponent', or ''.
+function getWinner() {
+  if (player.choice === opponent.choice) {
+    // return empty string on a tie
+    return '';
+  }
+  if (
+    (player.choice === 'rock' && opponent.choice === 'paper') ||
+    (player.choice === 'paper' && opponent.choice === 'scissors') ||
+    (player.choice === 'scissors' && opponent.choice === 'rock')
+  ) {
+    return 'opponent';
+  }
+  return 'player';
+}
+
+function runGame() {
   let winner = '';
-  player.choice = $(this).val();
 
   // temporarily use computer as the opponent
-  opponent.choice = choices[Math.floor(Math.random() * choices.length)];
+  opponent.choice = getRandomChoice();
 
-  // post choice to database and determine winner
+  // TODO post choice to database and determine winner
 
   // determine the winner and increment the score
   winner = getWinner();
@@ -85,19 +93,15 @@ function handleSelection() {
   renderGame(winner);
 }
 
-// Function to handle click on the play button
-function handlePlayBtnClick() {
-  $('#mainContainer').addClass('in');
-}
-
+// Setup Listeners ===============================================
 
 // player clicks play button to start the game
-$('#btnPlay').on('click', handlePlayBtnClick);
+$('#btnPlay').on('click', () => $('#mainContainer').addClass('in'));
+
+// get the choice when the user clicks on one of the options
+$('.selection').on('click', () => {
+  player.choice = $(this).val();
+  runGame();
+});
 
 // TODO prompt player to choose rock, paper, scissors
-// get the choice when the user clicks on one of the options
-$('.selection').on('click', handleSelection);
-
-// when opponent makes a choice
-// determine winner
-// update score and display message for the result of the match

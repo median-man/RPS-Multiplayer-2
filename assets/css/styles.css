@@ -41,6 +41,12 @@
   left: 10px;
 }
 
+/* Results Modal */
+#resultModal {
+  top:25%;
+  outline: none;
+  }
+
 /* helpers */
 .relative {
   position: relative;

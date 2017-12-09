@@ -28,9 +28,33 @@ function setChoice(id, value) {
     .text(value);
 }
 
-function renderGame() {
+// Function to update and display the result modal
+function showResult(winner) {
+  const $modal = $('#resultModal');
+  let msg = 'Tie';
+
+  // set the message to display (initially set to Tie)
+  if (winner === 'opponent') msg = 'You lost.';
+  if (winner === 'player') msg = 'You won!';
+
+  // update and display the modal
+  $modal.find('.modal-title').text(msg);
+  $modal.modal();
+}
+
+// Function to update html for the game
+function renderGame(winner) {
   const $circles = $('.circle');
+
+  // fade out the circles in the player/opponent panels
   $circles.removeClass('in');
+
+  // display the result modal
+  showResult(winner);
+
+  // update score
+  $('#playerWins').text(player.wins);
+  $('#oppWins').text(opponent.wins);
 
   // wait for fadeout before changing the values (.15 seconds to fade out)
   setTimeout(() => {
@@ -52,11 +76,13 @@ function handleSelection() {
 
   // post choice to database and determine winner
 
-  // determine the winner
+  // determine the winner and increment the score
   winner = getWinner();
+  if (winner === 'player') player.wins += 1;
+  if (winner === 'opponent') opponent.wins += 1;
 
   // update html for player choice
-  renderGame();
+  renderGame(winner);
 }
 
 // Function to handle click on the play button

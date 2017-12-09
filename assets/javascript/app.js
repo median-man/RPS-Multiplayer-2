@@ -1,6 +1,22 @@
 // global vars
-const player = { choice: '' };
-const opponent = { choice: '' };
+const player = { choice: '', wins: 0 };
+const opponent = { choice: '', wins: 0 };
+
+// Function to get the winner. Returns a string of 'player', 'opponent', or ''.
+function getWinner() {
+  if (player.choice === opponent.choice) {
+    // return empty string on a tie
+    return '';
+  }
+  if (
+    (player.choice === 'rock' && opponent.choice === 'paper') ||
+    (player.choice === 'paper' && opponent.choice === 'scissors') ||
+    (player.choice === 'scissors' && opponent.choice === 'rock')
+  ) {
+    return 'opponent';
+  }
+  return 'player';
+}
 
 function setChoice(id, value) {
   $(id)
@@ -23,26 +39,36 @@ function renderGame() {
     setChoice('#oppChoice', opponent.choice);
     $circles.addClass('in');
   }, 140);
-
-  // setTimeout(() => $circles.addClass('in'), 100);
 }
 
 // Function to handle user selection (rock, paper, or scissors chosen)
 function handleSelection() {
   const choices = ['rock', 'paper', 'scissors'];
+  let winner = '';
   player.choice = $(this).val();
 
   // temporarily use computer as the opponent
   opponent.choice = choices[Math.floor(Math.random() * choices.length)];
 
-  // post choice to database
+  // post choice to database and determine winner
+
+  // determine the winner
+  winner = getWinner();
+
   // update html for player choice
   renderGame();
 }
 
+// Function to handle click on the play button
+function handlePlayBtnClick() {
+  $('#mainContainer').addClass('in');
+}
+
 
 // player clicks play button to start the game
-// prompt player to choose rock, paper, scissors
+$('#btnPlay').on('click', handlePlayBtnClick);
+
+// TODO prompt player to choose rock, paper, scissors
 // get the choice when the user clicks on one of the options
 $('.selection').on('click', handleSelection);
 

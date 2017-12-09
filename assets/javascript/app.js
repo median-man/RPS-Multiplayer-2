@@ -1,5 +1,4 @@
 // global vars
-let isInGame = false;
 const opponent = { choice: '', wins: 0 };
 const player = { choice: '', wins: 0 };
 const db = firebase.database();
@@ -7,13 +6,27 @@ const db = firebase.database();
 // DB Functions  ===============================================
 
 // --- db globals ---
-const refPlayers = db.ref('/players');
-const refIsConnected = db.ref('.info/connected');
 let refThisPlayer = null;
+let refOpponent = null;
 
-// Function to update the player on the db
-function getOpponentChoice() {
+function getOpponentChoice(callback) {
+  // get the opponents choice
+  refOpponent.on('value', (snap) => {
+    if (snap.exists()) opponent.choice = snap.val().choice;
 
+    // once opponent has made a choice, update the value and
+    // stop listening for opponent choice and run the game
+    if (opponent.choice) {
+      console.log(`opponent chose ${opponent.choice}`);
+      refOpponent.off('value');
+      if (callback) callback();
+    }
+  });
+}
+
+// Function to update the player info on the db
+function updatePlayer() {
+  if (refThisPlayer) refThisPlayer.set(player);
 }
 
 // UI Functions ===============================================
@@ -45,7 +58,7 @@ function showResult(winner) {
 }
 
 // Function to update html for the game
-function renderGame(winner) {
+function renderGame(winner, callback) {
   const $circles = $('.circle');
 
   // fade out the circles in the player/opponent panels
@@ -64,6 +77,7 @@ function renderGame(winner) {
     setChoice('#playerChoice', player.choice);
     setChoice('#oppChoice', opponent.choice);
     $circles.addClass('in');
+    if (callback) callback();
   }, 140);
 }
 
@@ -92,22 +106,7 @@ function getWinner() {
 }
 
 function runGame() {
-  let winner = '';
-
-  // only continue if player has made a choice
-  if (!player.choice) return false;
-
-  if (!opponent.choice) {
-    // wait for opponent to choose
-    // render game
-    renderGame();
-    return false;
-  }
-
-  // temporarily use computer as the opponent
-  opponent.choice = getRandomChoice();
-
-  // TODO post choice to database and determine winner
+  let winner = 'tie';
 
   // determine the winner and increment the score
   winner = getWinner();
@@ -115,56 +114,40 @@ function runGame() {
   if (winner === 'opponent') opponent.wins += 1;
 
   // update html for player choice
-  renderGame(winner);
-
-  // reset values
-  opponent.choice = '';
-  player.choice = '';
+  renderGame(winner, () => {
+    player.choice = '';
+    opponent.choice = '';
+    updatePlayer();
+  });
 
   return true;
 }
 
-function waitForPlayer() {
-  console.log('waiting for player');
-  // set in game state to false
-  isInGame = false;
-  // TODO show 'waiting for player' in opponent panel
-}
-
 // DB Events  ===============================================
 
-// Add user to connections
-refIsConnected.on('value', (snap) => {
-  if (snap.val()) {
-    // add connection and remove it on disconnect
-    refThisPlayer = refPlayers.push(true);
+db.ref().on('value', (snap) => {
+  // set database reference to the player data if game doesn't
+  // already have two players connected
+  if (!snap.child('player1').exists() && !refThisPlayer) {
+    refThisPlayer = db.ref('player1');
+    updatePlayer();
+    refOpponent = db.ref('player2');
     refThisPlayer.onDisconnect().remove();
-  }
-});
-
-// Update game based on number of players connected
-refPlayers.on('value', (snap) => {
-  const playersCount = snap.numChildren();
-  console.log({ playersCount });
-
-  if (playersCount === 2) {
-    isInGame = true;
-    runGame();
-  } else {
-    isInGame = false;
-    // waitForOpponent();
+  } else if (!snap.child('player2').exists() && !refThisPlayer) {
+    refThisPlayer = db.ref('player2');
+    updatePlayer();
+    refOpponent = db.ref('player1');
+    refThisPlayer.onDisconnect().remove();
   }
 });
 
 // UI Events ===============================================
 
-// player clicks play button to start the game
-// $('#btnPlay').on('click', () => $('#mainContainer').addClass('in'));
-
 // get the choice when the user clicks on one of the options
 $('.selection').on('click', function handleSelectionBtnClick() {
   player.choice = $(this).val();
-  runGame();
+  opponent.choice = '';
+  renderGame();
+  updatePlayer();
+  getOpponentChoice(runGame);
 });
-
-// TODO prompt player to choose rock, paper, scissors

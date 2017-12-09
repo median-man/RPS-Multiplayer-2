@@ -1,21 +1,20 @@
 // global vars
-const player = { choice: '', wins: 0 };
+let isInGame = false;
 const opponent = { choice: '', wins: 0 };
+const player = { choice: '', wins: 0 };
 const db = firebase.database();
 
-// Database  ===============================================
+// DB Functions  ===============================================
 
 // --- db globals ---
-const refConnections = db.ref('/connections');
+const refPlayers = db.ref('/players');
 const refIsConnected = db.ref('.info/connected');
+let refThisPlayer = null;
 
-// --- db events ---
-refIsConnected.on('value', (snap) => {
-  if (snap.val()) {
-    let refThisConnection = refConnections.push();
-  }
-});
+// Function to update the player on the db
+function getOpponentChoice() {
 
+}
 
 // UI Functions ===============================================
 
@@ -34,7 +33,7 @@ function setChoice(id, value) {
 // Function to update and display the result modal
 function showResult(winner) {
   const $modal = $('#resultModal');
-  let msg = 'Tie';
+  let msg = 'Tied';
 
   // set the message to display (initially set to Tie)
   if (winner === 'opponent') msg = 'You lost.';
@@ -53,7 +52,7 @@ function renderGame(winner) {
   $circles.removeClass('in');
 
   // display the result modal
-  showResult(winner);
+  if (winner) showResult(winner);
 
   // update score
   $('#playerWins').text(player.wins);
@@ -76,11 +75,11 @@ function getRandomChoice() {
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
-// Function to get the winner. Returns a string of 'player', 'opponent', or ''.
+// Function to get the winner. Returns a string of 'player', 'opponent', or 'tie'.
 function getWinner() {
   if (player.choice === opponent.choice) {
-    // return empty string on a tie
-    return '';
+    // return tie
+    return 'tie';
   }
   if (
     (player.choice === 'rock' && opponent.choice === 'paper') ||
@@ -95,6 +94,16 @@ function getWinner() {
 function runGame() {
   let winner = '';
 
+  // only continue if player has made a choice
+  if (!player.choice) return false;
+
+  if (!opponent.choice) {
+    // wait for opponent to choose
+    // render game
+    renderGame();
+    return false;
+  }
+
   // temporarily use computer as the opponent
   opponent.choice = getRandomChoice();
 
@@ -107,12 +116,50 @@ function runGame() {
 
   // update html for player choice
   renderGame(winner);
+
+  // reset values
+  opponent.choice = '';
+  player.choice = '';
+
+  return true;
 }
+
+function waitForPlayer() {
+  console.log('waiting for player');
+  // set in game state to false
+  isInGame = false;
+  // TODO show 'waiting for player' in opponent panel
+}
+
+// DB Events  ===============================================
+
+// Add user to connections
+refIsConnected.on('value', (snap) => {
+  if (snap.val()) {
+    // add connection and remove it on disconnect
+    refThisPlayer = refPlayers.push(true);
+    refThisPlayer.onDisconnect().remove();
+  }
+});
+
+// Update game based on number of players connected
+refPlayers.on('value', (snap) => {
+  const playersCount = snap.numChildren();
+  console.log({ playersCount });
+
+  if (playersCount === 2) {
+    isInGame = true;
+    runGame();
+  } else {
+    isInGame = false;
+    // waitForOpponent();
+  }
+});
 
 // UI Events ===============================================
 
 // player clicks play button to start the game
-$('#btnPlay').on('click', () => $('#mainContainer').addClass('in'));
+// $('#btnPlay').on('click', () => $('#mainContainer').addClass('in'));
 
 // get the choice when the user clicks on one of the options
 $('.selection').on('click', function handleSelectionBtnClick() {

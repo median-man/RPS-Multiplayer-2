@@ -13,9 +13,18 @@ function setChoice(id, value) {
 }
 
 function renderGame() {
-  // set the text and class for the player choice;
-  setChoice('#playerChoice', player.choice);
-  setChoice('#oppChoice', opponent.choice);
+  const $circles = $('.circle');
+  $circles.removeClass('in');
+
+  // wait for fadeout before changing the values (.15 seconds to fade out)
+  setTimeout(() => {
+    // set the text and class for the player choice
+    setChoice('#playerChoice', player.choice);
+    setChoice('#oppChoice', opponent.choice);
+    $circles.addClass('in');
+  }, 140);
+
+  // setTimeout(() => $circles.addClass('in'), 100);
 }
 
 // Function to handle user selection (rock, paper, or scissors chosen)

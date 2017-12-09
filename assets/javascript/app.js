@@ -1,10 +1,26 @@
 // global vars
 const player = { choice: '', wins: 0 };
 const opponent = { choice: '', wins: 0 };
-const database = firebase.database();
+const db = firebase.database();
+
+// Database  ===============================================
+
+// --- db globals ---
+const refConnections = db.ref('/connections');
+const refIsConnected = db.ref('.info/connected');
+
+// --- db events ---
+refIsConnected.on('value', (snap) => {
+  if (snap.val()) {
+    let refThisConnection = refConnections.push();
+  }
+});
 
 
 // UI Functions ===============================================
+
+// Function to set the values/classes for the circle which displays
+// a player's/opponent's choice
 function setChoice(id, value) {
   $(id)
     // update the class
@@ -93,13 +109,13 @@ function runGame() {
   renderGame(winner);
 }
 
-// Setup Listeners ===============================================
+// UI Events ===============================================
 
 // player clicks play button to start the game
 $('#btnPlay').on('click', () => $('#mainContainer').addClass('in'));
 
 // get the choice when the user clicks on one of the options
-$('.selection').on('click', () => {
+$('.selection').on('click', function handleSelectionBtnClick() {
   player.choice = $(this).val();
   runGame();
 });

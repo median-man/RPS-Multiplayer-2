@@ -3,6 +3,11 @@
     min-width: 80px;
 }
 
+.modal-dialog {
+  top:25%;
+  outline: none;
+}
+
 /* player panel styles */
 .player-panel {
   max-width: 350px;
@@ -40,12 +45,6 @@
   bottom: 0px;
   left: 10px;
 }
-
-/* Results Modal */
-#resultModal {
-  top:25%;
-  outline: none;
-  }
 
 /* helpers */
 .relative {

@@ -1,16 +1,14 @@
 // global vars
-let opponent = {
-  userName: '',
-  choice: '',
-  wins: 0,
-  losses: 0,
+const defaultPlayer = () => {
+  return {
+    userName: '',
+    choice: '',
+    wins: 0,
+    losses: 0,
+  };
 };
-const player = {
-  userName: '',
-  choice: '',
-  wins: 0,
-  losses: 0,
-};
+let opponent = defaultPlayer();
+let player = defaultPlayer();
 let playerNum = 0;
 
 // database globals
@@ -18,6 +16,7 @@ const db = firebase.database();
 const player1Ref = db.ref('/player1');
 const player2Ref = db.ref('/player2');
 const turnRef = db.ref('/turn');
+let opponentRef = null;
 
 // turn object
 const turn = (function Turn() {
@@ -72,7 +71,6 @@ function createPlayerView(choiceId, scoreId, nameId) {
     show: () => $(choiceId).addClass('in'),
     hide: () => $(choiceId).removeClass('in'),
     setChoice: (choice) => {
-      console.log('setChoice called', choice);
       $(choiceId)
         .removeClass('paper rock scissors')
         .addClass(choice)
@@ -86,6 +84,35 @@ function createPlayerView(choiceId, scoreId, nameId) {
 }
 const playerView = createPlayerView('#playerChoice', '#playerWins', '#playerName');
 const opponentView = createPlayerView('#oppChoice', '#oppWins', '#oppName');
+
+// init opponent
+function initOpponent() {
+  // listen for changes to opponent data
+  opponentRef.on('value', (snap) => {
+    console.log('opponent changed', snap.val());
+    if (snap.exists()) {
+      const data = snap.val();
+
+      // set name and update display if name has changed
+      if (data.userName !== opponent.userName) {
+        opponent.userName = data.userName;
+        opponentView.setName(opponent.userName);
+      }
+
+      // set score and update display if score has changed
+      if (data.wins !== opponent.wins) {
+        opponent.wins = data.wins;
+        opponentView.setScore(opponent.wins);
+      }
+    } else {
+      // opponent is not connected, reset values
+      opponent = defaultPlayer();
+      opponentView.setName('No Opponent');
+      // TODO: display waiting for opponent message
+      console.log('waiting for opponenet to join game');
+    }
+  });
+}
 
 // Function randomly returns 'rock', 'paper', or 'scissors'
 function getRandomChoice() {
@@ -139,6 +166,7 @@ function joinGame() {
         player1Ref.set(player);
         player1Ref.onDisconnect().remove();
         playerNum = 1;
+        opponentRef = player2Ref;
       }
     })
     // else if there is no player2 connected then player joins game as player2
@@ -148,26 +176,37 @@ function joinGame() {
         player2Ref.set(player);
         player2Ref.onDisconnect().remove();
         playerNum = 2;
+        opponentRef = player1Ref;
       }
     })
     .then(() => {
       // if playerNum is truthy
       if (playerNum) {
+        // initialize turn object
+        turn.init();
+
+        // initialize opponent data connection
+        initOpponent();
+
         // hide sign in modal and display userName
         playerView.setName(player.userName);
         $('#startModal').modal('hide');
+
         // TODO display welcome status message
         // TODO push player joined game message to chat
+
+        console.log(`connected as player ${playerNum}`, player);
       }
 
       // if player joined game and opponent hasn't
-      if (playerNum && turn.val() === 0) {
+      if (playerNum && !opponent.userName) {
         // TODO display waiting for opponent status
       }
 
       // if playerNum = truthy and other player is set && turn = 0
-      if (playerNum && turn.val() === 1) {
-        // set turn to 1
+      if (playerNum && opponent.userName && turn.val() === 0) {
+        // incrment
+        turn.increment();
       }
     });
 }
@@ -246,8 +285,15 @@ $('#signInForm').on('submit', (event) => {
 /* Pseudocode ------------------
 
 user enters name
-if player1 not set, playerNum = 1
-if player1 is set and player2 is not set, playerNum = 2
+if player1.name is falsey
+  playerNum = 1
+  when player disconnects, call remove on the ref
+  post the player data to the database
+  opponent ref = player2 ref
+if player1.name is truthy and player2 is not set
+  playerNum = 2
+  when player disconnects, call remove on the ref
+  opponent ref = player1 ref
 if player1 && player2 are both set, player may not join game
 
 if playerNum is truthy
@@ -255,11 +301,30 @@ if playerNum is truthy
   display player name
   display status message
   push player joined game message to chat
+  begin listening for changein turn value
+  begin listening for change in opponent data
 
-if playerNum = truthy && turn = 0
+when opponent value changes
+  if opponent doesn't exist
+    clear opponent display (name and any choice)
+    display waiting for opponent msg
+  if opponent exists
+    if name has changed
+      set name
+      update display
+    if score has changed
+      set opp score
+      update display
+
+    
+
+if playerNum = truthy && opponent doesn't exist
   display waiting for player to join message
+  when value of opponent exists
+    get the name
+    if 
 
-if playerNum = truthy and other player is set && turn = 0
+if playerNum = truthy && both players have joined game && turn = 0
   set turn = 1
 
 when user clicks a choice

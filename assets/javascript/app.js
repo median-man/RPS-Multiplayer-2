@@ -93,17 +93,18 @@ function initOpponent() {
     if (snap.exists()) {
       const data = snap.val();
 
-      // set name and update display if name has changed
-      if (data.userName !== opponent.userName) {
-        opponent.userName = data.userName;
-        opponentView.setName(opponent.userName);
-      }
-
-      // set score and update display if score has changed
-      if (data.wins !== opponent.wins) {
-        opponent.wins = data.wins;
-        opponentView.setScore(opponent.wins);
-      }
+      // set name and update display if opponent name has changed
+      opponentRef.on('child_changed', (childSnap) => {
+        if (childSnap.key === 'choice') {
+          opponent.choice = childSnap.val();
+        } else if (childSnap.key === 'userName') {
+          opponent.userName = childSnap.val();
+          opponentView.setName(opponent.userName);
+        } else if (childSnap.key === 'wins') {
+          opponent.wins = data.wins;
+          opponentView.setScore(opponent.wins);
+        }
+      });
     } else {
       // opponent is not connected, reset values
       opponent = defaultPlayer();
@@ -212,7 +213,7 @@ function joinGame() {
 }
 
 // get the choice when the user clicks on one of the options
-$('.selection').on('click', function handleSelectionBtnClick() {
+/* $('.selection').on('click', function handleSelectionBtnClick() {
   if (!player.choice) {
     player.choice = $(this).val();
     // update database
@@ -248,12 +249,12 @@ $('.selection').on('click', function handleSelectionBtnClick() {
           opponentView.setChoice(opponent.choice);
           opponentView.show();
           player1Ref.off('value');
-          // resolve game
+          // TODO resolve game
         }
       });
     }
   }
-});
+}); */
 
 // display sign in at first to get userName input
 $('#startModal').modal({ backdrop: 'static' });
@@ -284,31 +285,36 @@ $('#signInForm').on('submit', (event) => {
 
 /* Pseudocode ------------------
 
-user enters name
-if player1.name is falsey
+user enters name and clicks Start
+if no player connected as player1
   playerNum = 1
   when player disconnects, call remove on the ref
   post the player data to the database
   opponent ref = player2 ref
-if player1.name is truthy and player2 is not set
+if player1 is connected and no player connected as player2
   playerNum = 2
   when player disconnects, call remove on the ref
   opponent ref = player1 ref
 if player1 && player2 are both set, player may not join game
 
 if playerNum is truthy
+  display chat messages and listen for chat messages
   hide sign in modal
   display player name
-  display status message
   push player joined game message to chat
   begin listening for changein turn value
   begin listening for change in opponent data
 
-when opponent value changes
+if playerNum is truthy && opponent doesn't exist
+  display waiting for player to join message
+
+when opponent data changes
   if opponent doesn't exist
     clear opponent display (name and any choice)
     display waiting for opponent msg
   if opponent exists
+    if choice has changed
+      set opponent.choice
     if name has changed
       set name
       update display
@@ -316,34 +322,24 @@ when opponent value changes
       set opp score
       update display
 
-    
-
-if playerNum = truthy && opponent doesn't exist
-  display waiting for player to join message
-  when value of opponent exists
-    get the name
-    if 
-
-if playerNum = truthy && both players have joined game && turn = 0
-  set turn = 1
-
 when user clicks a choice
-  push game event message to chat
-  increment turn
+  set the value of player.choice
   display the user's choice
+  increment turn
+  if turn = 1 (opponent hasn't made choice yet)
+    display message waiting for opponent choice
 
 when turn changes
-  if turn = 1
-    display the opponents name
-  if turn = 2 and player.choice is truthy
-    display waiting for opponent to choose msg
-  if turn = 3
-    display opponent choice
-    determine winner
-    push game event message to chat
-    display modal with result for 3 seconds
-    reset player values (not the display)
+  if turn = 2
+    call function to resolve game
 
-when the result modal time is up
-  reset the display
+function to resolve game
+  determine winner
+  display result
+  update player score
+  reset player values
+  if playerNum = 1
+    push result message to chat
+  after 3 seconds
+    reset display
  */

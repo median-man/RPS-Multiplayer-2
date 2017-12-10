@@ -1,12 +1,10 @@
 // global vars
-const defaultPlayer = () => {
-  return {
-    userName: '',
-    choice: '',
-    wins: 0,
-    losses: 0,
-  };
-};
+const defaultPlayer = () => ({
+  userName: '',
+  choice: '',
+  wins: 0,
+  losses: 0,
+});
 let opponent = defaultPlayer();
 let player = defaultPlayer();
 let playerNum = 0;
@@ -92,14 +90,6 @@ function prependChatMessage(name, message) {
     .text(` ${message}`)
     .prepend($name)
     .prependTo('#chatMessages');
-}
-
-// function to initialize connect to chat and listen for new messages
-function initChat() {
-  // prepend each chat message (so newest will be on top) and listen for new chat messages
-  chatRef.on('child_added', (childSnap) => {
-    prependChatMessage(childSnap.val().name, childSnap.val().message);
-  });
 }
 
 // init opponent
@@ -204,7 +194,6 @@ function joinGame() {
         turn.init();
 
         // initialize data connections
-        initChat();
         initOpponent();
 
         // hide sign in modal and display userName
@@ -212,7 +201,8 @@ function joinGame() {
         $('#startModal').modal('hide');
 
         // TODO display welcome status message
-        // TODO push player joined game message to chat
+        // push player joined game message to chat
+        chatRef.push({ name: 'Game', message: `'${player.userName}' joined game.` });
 
         console.log(`connected as player ${playerNum}`, player);
       }
@@ -229,6 +219,12 @@ function joinGame() {
       }
     });
 }
+
+// get chat and listen for new chat messages
+chatRef.orderByKey().on('child_added', (childSnap) => {
+  console.log(childSnap.val());
+  prependChatMessage(childSnap.val().name, childSnap.val().message);
+});
 
 // get the choice when the user clicks on one of the options
 /* $('.selection').on('click', function handleSelectionBtnClick() {

@@ -49,7 +49,7 @@
 /* chat panel */
 .chat.panel-body {
   max-height: 30em;
-  overflow: scroll;
+  overflow: auto;
 }
 
 /* helpers */

@@ -94,6 +94,14 @@ function prependChatMessage(name, message) {
     .prependTo('#chatMessages');
 }
 
+// function to initialize connect to chat and listen for new messages
+function initChat() {
+  // prepend each chat message (so newest will be on top) and listen for new chat messages
+  chatRef.on('child_added', (childSnap) => {
+    prependChatMessage(childSnap.val().name, childSnap.val().message);
+  });
+}
+
 // init opponent
 function initOpponent() {
   // listen for changes to opponent data
@@ -195,7 +203,8 @@ function joinGame() {
         // initialize turn object
         turn.init();
 
-        // initialize opponent data connection
+        // initialize data connections
+        initChat();
         initOpponent();
 
         // hide sign in modal and display userName
@@ -288,6 +297,17 @@ $('#signInForm').on('submit', (event) => {
       }
     })
     .catch(console.log);
+});
+
+// when chat form submit button is clicked
+$('#chatForm').on('submit', (event) => {
+  event.preventDefault();
+
+  // get input and post message to server if player is in game
+  const $input = $('#txtChatInput');
+  const message = $input.val().trim();
+  $input.val('');
+  if (playerNum) chatRef.push({ name: player.userName, message });
 });
 
 /* Pseudocode ------------------

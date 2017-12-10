@@ -16,6 +16,7 @@ const db = firebase.database();
 const player1Ref = db.ref('/player1');
 const player2Ref = db.ref('/player2');
 const turnRef = db.ref('/turn');
+const chatRef = db.ref('/chat');
 let opponentRef = null;
 
 // turn object
@@ -84,6 +85,14 @@ function createPlayerView(choiceId, scoreId, nameId) {
 }
 const playerView = createPlayerView('#playerChoice', '#playerWins', '#playerName');
 const opponentView = createPlayerView('#oppChoice', '#oppWins', '#oppName');
+
+function prependChatMessage(name, message) {
+  const $name = $('<b>').text(`${name}:`);
+  $('<p>')
+    .text(` ${message}`)
+    .prepend($name)
+    .prependTo('#chatMessages');
+}
 
 // init opponent
 function initOpponent() {
@@ -206,7 +215,7 @@ function joinGame() {
 
       // if playerNum = truthy and other player is set && turn = 0
       if (playerNum && opponent.userName && turn.val() === 0) {
-        // incrment
+        // increment
         turn.increment();
       }
     });
@@ -280,8 +289,6 @@ $('#signInForm').on('submit', (event) => {
     })
     .catch(console.log);
 });
-
-
 
 /* Pseudocode ------------------
 

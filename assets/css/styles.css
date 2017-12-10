@@ -46,6 +46,12 @@
   left: 10px;
 }
 
+/* chat panel */
+.chat.panel-body {
+  max-height: 30em;
+  overflow: scroll;
+}
+
 /* helpers */
 .relative {
   position: relative;

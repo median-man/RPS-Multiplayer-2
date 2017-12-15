@@ -92,6 +92,12 @@ function prependChatMessage(name, message) {
     .prependTo('#chatMessages');
 }
 
+// Waiting for opponent modal
+const oppModal = {
+  show: () => $('#waitModal').modal({ backdrop: 'static', keyboard: false }),
+  hide: () => $('#waitModal').modal('hide'),
+};
+
 // init opponent
 function initOpponent() {
   // listen for changes to opponent data
@@ -99,6 +105,8 @@ function initOpponent() {
     console.log('opponent changed', snap.val());
     if (snap.exists()) {
       const data = snap.val();
+      opponent.userName = snap.val().userName;
+      opponentView.setName(opponent.userName);
 
       // set name and update display if opponent name has changed
       opponentRef.on('child_changed', (childSnap) => {
@@ -112,12 +120,15 @@ function initOpponent() {
           opponentView.setScore(opponent.wins);
         }
       });
+
+      // hide waiting for opponent modal
+      oppModal.hide();
     } else {
-      // opponent is not connected, reset values
+      // opponent is not connected. reset values and display modal
       opponent = defaultPlayer();
       opponentView.setName('No Opponent');
-      // TODO: display waiting for opponent message
       console.log('waiting for opponenet to join game');
+      oppModal.show();
     }
   });
 }
@@ -210,6 +221,8 @@ function joinGame() {
       // if player joined game and opponent hasn't
       if (playerNum && !opponent.userName) {
         // TODO display waiting for opponent status
+        // console.log('waiting for an opponent');
+        // $('#waitModal').modal({ backdrop: 'static', keyboard: false });
       }
 
       // if playerNum = truthy and other player is set && turn = 0
@@ -222,7 +235,6 @@ function joinGame() {
 
 // get chat and listen for new chat messages
 chatRef.orderByKey().on('child_added', (childSnap) => {
-  console.log(childSnap.val());
   prependChatMessage(childSnap.val().name, childSnap.val().message);
 });
 
@@ -308,6 +320,7 @@ $('#chatForm').on('submit', (event) => {
 
 /* Pseudocode ------------------
 
+display chat messages and listen for chat messages
 user enters name and clicks Start
 if no player connected as player1
   playerNum = 1
@@ -321,7 +334,6 @@ if player1 is connected and no player connected as player2
 if player1 && player2 are both set, player may not join game
 
 if playerNum is truthy
-  display chat messages and listen for chat messages
   hide sign in modal
   display player name
   push player joined game message to chat

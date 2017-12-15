@@ -52,6 +52,14 @@
   overflow: auto;
 }
 
+/* game alert */
+#gameAlert {
+  position: fixed;
+  left: 20%;
+  top: 25%;
+  width: 60%;
+}
+
 /* helpers */
 .relative {
   position: relative;

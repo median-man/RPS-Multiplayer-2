@@ -60,7 +60,7 @@
         <!-- display the user's choice and score -->
         <div class="panel panel-default player-panel center-block">
           <div class="panel-heading text-center">
-            <h2 id="playerName">You</h2>
+            <h2 id="playerName">&nbsp;</h2>
           </div>
           <div class="panel-body relative">
             <div class="circle center-block text-center fade" id="playerChoice">
@@ -80,7 +80,7 @@
         <!-- display the opponents choice and score -->
         <div class="panel panel-default player-panel center-block">
           <div class="panel-heading text-center">
-            <h2 id="oppName">Opponent</h2>
+            <h2 id="oppName">&nbsp;</h2>
           </div>
           <div class="panel-body relative">
             <div class="circle center-block text-center fade" id="oppChoice">
@@ -110,10 +110,27 @@
             </form>
       </div>
       <div class="panel-body chat" id="chatMessages">
-        <p>No messages</p>
       </div>
     </div>
 
+    <!-- waiting for opponent modal -->
+    
+    <a class="btn btn-primary" data-toggle="modal" href='#modal-id'>Trigger modal</a>
+    <div class="modal fade" id="modal-id">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body bg-info">
+              <p class="h3">
+                Waiting for player to join.
+              </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- <div id="gameAlert" class="relative">
+    </div> -->
+    
 
     <!-- show the result in a modal -->
     <div class="modal fade" id="resultModal" role="dialog">

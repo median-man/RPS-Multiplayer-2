@@ -16,6 +16,7 @@ const player2Ref = db.ref('/player2');
 const turnRef = db.ref('/turn');
 const chatRef = db.ref('/chat');
 let opponentRef = null;
+let playerRef = null;
 
 // turn object
 const turn = (function Turn() {
@@ -182,29 +183,27 @@ function joinGame() {
     .once('value')
     .then((snap) => {
       if (!snap.exists()) {
-        player1Ref.set(player);
-        player1Ref.onDisconnect().remove();
-        playerNum = 1;
+        playerRef = player1Ref;
         opponentRef = player2Ref;
+        playerNum = 1;
       }
     })
     // else if there is no player2 connected then player joins game as player2
     .then(() => player2Ref.once('value'))
     .then((snap) => {
       if (!snap.exists() && !playerNum) {
-        player2Ref.set(player);
-        player2Ref.onDisconnect().remove();
-        playerNum = 2;
+        playerRef = player2Ref;
         opponentRef = player1Ref;
+        playerNum = 2;
       }
     })
     .then(() => {
       // if playerNum is truthy
       if (playerNum) {
-        // initialize turn object
+        // initialize turn object, player, and opponent
         turn.init();
-
-        // initialize data connections
+        playerRef.set(player);
+        playerRef.onDisconnect().remove();
         initOpponent();
 
         // hide sign in modal and display userName
@@ -239,8 +238,15 @@ chatRef.orderByKey().on('child_added', (childSnap) => {
 });
 
 // get the choice when the user clicks on one of the options
-/* $('.selection').on('click', function handleSelectionBtnClick() {
-  if (!player.choice) {
+$('.selection').on('click', function handleSelectionBtnClick() {
+  // if playerNum is not truthy do nothing
+  // set the value of player.choice
+  // display the user's choice
+  // increment turn
+  // if turn = 1 (opponent hasn't made choice yet)
+  //   display message waiting for opponent choice
+
+  if (playerNum && !player.choice) {
     player.choice = $(this).val();
     // update database
     if (playerNum === 1) {
@@ -280,7 +286,7 @@ chatRef.orderByKey().on('child_added', (childSnap) => {
       });
     }
   }
-}); */
+});
 
 // display sign in at first to get userName input
 $('#startModal').modal({ backdrop: 'static' });
@@ -340,14 +346,12 @@ if playerNum is truthy
   begin listening for changein turn value
   begin listening for change in opponent data
 
-if playerNum is truthy && opponent doesn't exist
-  display waiting for player to join message
-
 when opponent data changes
   if opponent doesn't exist
     clear opponent display (name and any choice)
     display waiting for opponent msg
   if opponent exists
+    hide waiting for opponent msg
     if choice has changed
       set opponent.choice
     if name has changed
@@ -358,6 +362,7 @@ when opponent data changes
       update display
 
 when user clicks a choice
+  if playerNum is not truthy do nothing
   set the value of player.choice
   display the user's choice
   increment turn

@@ -25,12 +25,20 @@
   vertical-align: middle;
 }
 
+.deciding {
+  border: 1px solid black;
+  background-color: none;
+  color: black;
+}
+
 .rock {
+  border: none;
   background-color: rgb(34, 25, 25);
   color: white;
 }
 
 .scissors {
+  border: none;
   background-color: rgb(31, 50, 114);
   color: white;
 }

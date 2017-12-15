@@ -6,7 +6,7 @@ const defaultPlayer = () => ({
   losses: 0,
 });
 let opponent = defaultPlayer();
-let player = defaultPlayer();
+const player = defaultPlayer();
 let playerNum = 0;
 
 // database globals
@@ -72,7 +72,7 @@ function createPlayerView(choiceId, scoreId, nameId) {
     hide: () => $(choiceId).removeClass('in'),
     setChoice: (choice) => {
       $(choiceId)
-        .removeClass('paper rock scissors')
+        .removeClass('paper rock scissors deciding')
         .addClass(choice)
         .children()
         .first()
@@ -183,6 +183,8 @@ function handleTurnChange(turnNum) {
   // if player has made a choice but opponent has not
   if (turnNum === 1 && !opponent.choice) {
     console.log('waiting for opponent to choose');
+    opponentView.setChoice('deciding');
+    opponentView.show();
   }
 
   if (turnNum === 2) {

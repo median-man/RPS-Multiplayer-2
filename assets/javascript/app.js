@@ -125,6 +125,9 @@ function initOpponent() {
       // hide waiting for opponent modal
       oppModal.hide();
     } else {
+      if (opponent.userName) {
+        prependChatMessage('Game', `${opponent.userName} left the game.`);
+      }
       // opponent is not connected. reset values and display modal
       opponent = defaultPlayer();
       opponentView.setName('No Opponent');
@@ -176,6 +179,18 @@ function waitForOpponent() {
   }
 }
 
+function handleTurnChange(turnNum) {
+  // if player has made a choice but opponent has not
+  if (turnNum === 1 && !opponent.choice) {
+    console.log('waiting for opponent to choose');
+  }
+
+  if (turnNum === 2) {
+    // both players have made a choice
+    console.log('resolve winner', `opponent: ${opponent.choice}, player: ${player.choice}`);
+  }
+}
+
 // Function to handle joining game if possible
 function joinGame() {
   // if there is no player1 connected then player joins game as player1
@@ -202,6 +217,7 @@ function joinGame() {
       if (playerNum) {
         // initialize turn object, player, and opponent
         turn.init();
+        turn.onChange(handleTurnChange);
         playerRef.set(player);
         playerRef.onDisconnect().remove();
         initOpponent();
@@ -239,52 +255,18 @@ chatRef.orderByKey().on('child_added', (childSnap) => {
 
 // get the choice when the user clicks on one of the options
 $('.selection').on('click', function handleSelectionBtnClick() {
-  // if playerNum is not truthy do nothing
-  // set the value of player.choice
-  // display the user's choice
-  // increment turn
-  // if turn = 1 (opponent hasn't made choice yet)
-  //   display message waiting for opponent choice
-
   if (playerNum && !player.choice) {
     player.choice = $(this).val();
     // update database
-    if (playerNum === 1) {
-      player1Ref.update(player);
-    } else {
-      player2Ref.update(player);
-    }
-    // render the players choice
+    playerRef.update(player);
+
+    // render the player's choice
     playerView.hide();
     playerView.setChoice(player.choice);
     playerView.show();
 
-    // wait for opponent to make choice
-    if (playerNum === 1) {
-      player2Ref.on('value', (snap) => {
-        if (snap.exists()) opponent = snap.val();
-        if (opponent.choice) {
-          // render the choice
-          opponentView.hide();
-          opponentView.setChoice(opponent.choice);
-          opponentView.show();
-          player2Ref.off('value');
-          // resolve game
-        }
-      });
-    } else if (playerNum === 2) {
-      player1Ref.on('value', (snap) => {
-        if (snap.exists()) opponent = snap.val();
-        if (opponent.choice) {
-          // render the choice
-          opponentView.hide();
-          opponentView.setChoice(opponent.choice);
-          opponentView.show();
-          player1Ref.off('value');
-          // TODO resolve game
-        }
-      });
-    }
+    prependChatMessage('Game', `You chose ${player.choice}.`);
+    turn.increment();
   }
 });
 
